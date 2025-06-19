@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tarihte Bugün Widget</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .widget-container {
+            width: 100%;
+            max-width: 500px;
+            background: #2a2a2a;
+            border: 2px solid #404040;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .widget-header {
+            background: #333333;
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .widget-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .widget-date {
+            font-size: 0.9em;
+            color: #b0b0b0;
+        }
+
+        .widget-content {
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #b0b0b0;
+        }
+
+        .spinner {
+            border: 3px solid #404040;
+            border-top: 3px solid #666666;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .content-display {
+            height: 100%;
+            display: none;
+        }
+
+        .category-header {
+            background: #353535;
+            padding: 10px 20px;
+            border-bottom: 1px solid #404040;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #ffffff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .event-display {
+            padding: 20px;
+            height: calc(100% - 41px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .event-display.active {
+            opacity: 1;
+        }
+
+        .event-year {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #888888;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .event-text {
+            font-size: 1em;
+            line-height: 1.6;
+            color: #e0e0e0;
+            text-align: center;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
+        }
+
+        .progress-bar {
+            height: 3px;
+            background: #404040;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #666666;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .navigation {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #2a2a2a;
+            border-top: 1px solid #404040;
+        }
+
+        .nav-button {
+            background: #404040;
+            border: none;
+            color: #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: background 0.2s ease;
+        }
+
+        .nav-button:hover {
+            background: #505050;
+        }
+
+        .nav-button:disabled {
+            background: #2a2a2a;
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        .counter {
+            font-size: 0.85em;
+            color: #b0b0b0;
+        }
+
+        .error {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #ff6b6b;
+            padding: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            .widget-container {
+                max-width: 100%;
+                margin: 0 10px;
+            }
+            
+            .event-text {
+                font-size: 0.95em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="widget-container">
+        <div class="widget-header">
+            <div class="widget-title">Tarihte Bugün</div>
+            <div class="widget-date" id="currentDate"></div>
+        </div>
+        
+        <div class="widget-content">
+            <div id="loading" class="loading">
+                <div class="spinner"></div>
+                <div>Yükleniyor...</div>
+            </div>
+            
+            <div id="contentDisplay" class="content-display">
+                <div class="category-header" id="categoryHeader">Önemli Olaylar</div>
+                <div class="event-display active" id="eventDisplay">
+                    <div class="event-year" id="eventYear">2024</div>
+                    <div class="event-text" id="eventText">Olay metni buraya gelecek...</div>
+                </div>
+            </div>
+            
+            <div id="error" class="error" style="display: none;">
+                <div>❌</div>
+                <div>Veriler yüklenemedi</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn" onclick="previousEvent()">◄ Önceki</button>
+            <div class="counter" id="counter">1 / 1</div>
+            <button class="nav-button" id="nextBtn" onclick="nextEvent()">Sonraki ►</button>
+        </div>
+    </div>
+
+    <script>
+        let allEvents = [];
+        let currentEventIndex = 0;
+        let autoPlayInterval;
+        let progressInterval;
+        let isAutoPlaying = true;
+        
+        const categories = {
+            events: 'Önemli Olaylar',
+            births: 'Doğumlar',
+            deaths: 'Vefatlar'
+        };
+        
+        // Bugünün tarihini al
+        const today = new Date();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        
+        const turkishMonths = [
+            'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
+            'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
+        ];
+        
+        const formattedDate = `${day} ${turkishMonths[today.getMonth()]}`;
+        document.getElementById('currentDate').textContent = formattedDate;
+        
+        async function fetchTodayInHistory() {
+            try {
+                const response = await fetch(`https://api.wikimedia.org/feed/v1/wikipedia/tr/onthisday/all/${month}/${day}`);
+                
+                if (!response.ok) {
+                    throw new Error('API isteği başarısız');
+                }
+                
+                const data = await response.json();
+                processData(data);
+                
+            } catch (error) {
+                console.error('Türkçe API hatası:', error);
+                try {
+                    const response = await fetch(`https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/all/${month}/${day}`);
+                    const data = await response.json();
+                    processData(data, true);
+                } catch (englishError) {
+                    showError();
+                }
+            }
+        }
+        
+        function processData(data, isEnglish = false) {
+            allEvents = [];
+            
+            // Olayları ekle
+            if (data.events && data.events.length > 0) {
+                data.events.slice(0, 8).forEach(event => {
+                    allEvents.push({
+                        category: 'events',
+                        year: event.year,
+                        text: cleanText(event.text || ''),
+                        type: 'event'
+                    });
+                });
+            }
+            
+            // Doğumları ekle
+            if (data.births && data.births.length > 0) {
+                data.births.slice(0, 6).forEach(birth => {
+                    allEvents.push({
+                        category: 'births',
+                        year: birth.year,
+                        text: cleanText(birth.text || ''),
+                        type: 'birth'
+                    });
+                });
+            }
+            
+            // Vefatları ekle
+            if (data.deaths && data.deaths.length > 0) {
+                data.deaths.slice(0, 6).forEach(death => {
+                    allEvents.push({
+                        category: 'deaths',
+                        year: death.year,
+                        text: cleanText(death.text || ''),
+                        type: 'death'
+                    });
+                });
+            }
+            
+            if (allEvents.length > 0) {
+                // Olayları kategoriye göre grupla ve karıştır
+                shuffleArray(allEvents);
+                currentEventIndex = 0;
+                showCurrentEvent();
+                startAutoPlay();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('contentDisplay').style.display = 'block';
+            } else {
+                showError();
+            }
+        }
+        
+        function cleanText(text) {
+            return text.replace(/\[\[([^\]]+)\]\]/g, '$1')
+                      .replace(/\[([^\]]+)\]/g, '$1')
+                      .replace(/\n/g, ' ')
+                      .trim();
+        }
+        
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        function showCurrentEvent() {
+            if (allEvents.length === 0) return;
+            
+            const event = allEvents[currentEventIndex];
+            const eventDisplay = document.getElementById('eventDisplay');
+            
+            // Fade out
+            eventDisplay.classList.remove('active');
+            
+            setTimeout(() => {
+                // Update content
+                document.getElementById('categoryHeader').textContent = categories[event.category];
+                document.getElementById('eventYear').textContent = event.year;
+                document.getElementById('eventText').textContent = event.text;
+                document.getElementById('counter').textContent = `${currentEventIndex + 1} / ${allEvents.length}`;
+                
+                // Update navigation buttons
+                document.getElementById('prevBtn').disabled = currentEventIndex === 0;
+                document.getElementById('nextBtn').disabled = currentEventIndex === allEvents.length - 1;
+                
+                // Fade in
+                eventDisplay.classList.add('active');
+            }, 250);
+        }
+        
+        function startAutoPlay() {
+            stopAutoPlay();
+            startProgressBar();
+            
+            autoPlayInterval = setInterval(() => {
+                nextEvent();
+            }, 5000);
+        }
+        
+        function stopAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+            stopProgressBar();
+        }
+        
+        function startProgressBar() {
+            stopProgressBar();
+            const progressFill = document.getElementById('progressFill');
+            let progress = 0;
+            
+            progressInterval = setInterval(() => {
+                progress += 2; // %2 her 100ms'de
+                progressFill.style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    progress = 0;
+                    progressFill.style.width = '0%';
+                }
+            }, 100);
+        }
+        
+        function stopProgressBar() {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+            document.getElementById('progressFill').style.width = '0%';
+        }
+        
+        function nextEvent() {
+            if (currentEventIndex < allEvents.length - 1) {
+                currentEventIndex++;
+                showCurrentEvent();
+                if (isAutoPlaying) {
+                    startAutoPlay();
+                }
+            } else {
+                stopAutoPlay();
+            }
+        }
+        
+        function previousEvent() {
+            if (currentEventIndex > 0) {
+                currentEventIndex--;
+                showCurrentEvent();
+                stopAutoPlay();
+                isAutoPlaying = false;
+            }
+        }
+        
+        function showError() {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'flex';
+        }
+        
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', fetchTodayInHistory);
+        
+        // Widget'a tıklandığında otomatik oynatmayı duraklat/başlat
+        document.querySelector('.widget-container').addEventListener('click', (e) => {
+            if (!e.target.closest('.navigation')) {
+                if (isAutoPlaying) {
+                    stopAutoPlay();
+                    isAutoPlaying = false;
+                } else {
+                    startAutoPlay();
+                    isAutoPlaying = true;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
