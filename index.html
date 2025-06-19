@@ -11,59 +11,66 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1a1a1a;
-            color: #e0e0e0;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        html, body {
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background: #1a1a1a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .widget-container {
-            width: 100vw;
-            height: calc(100vh - 2px);
+            width: 1080px;
+            height: 400px;
             background: #2a2a2a;
             border: 2px solid #404040;
-            border-radius: 0;
-            overflow: hidden;
-            box-shadow: none;
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             display: flex;
             flex-direction: column;
-            margin-bottom: 2px;
+            overflow: hidden;
+            color: #e0e0e0;
+        }
+
+        .wikipedia-attribution {
+            position: absolute;
+            top: 6px;
+            right: 15px;
+            font-size: 11px;
+            color: #666666;
+            opacity: 0.7;
+            z-index: 1000;
+            pointer-events: none;
+            font-weight: 400;
+            letter-spacing: 0.5px;
         }
 
         .widget-header {
             background: #333333;
-            padding: 8px 20px;
+            padding: 12px 20px;
             text-align: center;
             border-bottom: 1px solid #404040;
             flex-shrink: 0;
         }
 
         .widget-title {
-            font-size: 1em;
+            font-size: 18px;
             font-weight: 600;
             color: #ffffff;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .widget-date {
-            font-size: 0.8em;
+            font-size: 14px;
             color: #b0b0b0;
         }
 
         .widget-content {
             flex: 1;
-            position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
         .loading {
@@ -93,13 +100,14 @@
         .content-display {
             height: 100%;
             display: none;
+            flex-direction: column;
         }
 
         .category-header {
             background: #353535;
-            padding: 6px 20px;
+            padding: 8px 20px;
             border-bottom: 1px solid #404040;
-            font-size: 0.8em;
+            font-size: 13px;
             font-weight: 600;
             color: #ffffff;
             text-transform: uppercase;
@@ -109,14 +117,14 @@
 
         .event-display {
             flex: 1;
-            padding: 15px 25px;
+            padding: 20px 25px;
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: center;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
-            gap: 20px;
+            gap: 25px;
         }
 
         .event-display.active {
@@ -124,23 +132,23 @@
         }
 
         .event-year {
-            font-size: 1.8em;
+            font-size: 32px;
             font-weight: 700;
             color: #888888;
             text-align: center;
-            min-width: 120px;
+            min-width: 140px;
             flex-shrink: 0;
         }
 
         .event-text {
-            font-size: 1em;
+            font-size: 16px;
             line-height: 1.5;
             color: #e0e0e0;
             text-align: left;
             flex: 1;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 4;
+            -webkit-line-clamp: 6;
             -webkit-box-orient: vertical;
         }
 
@@ -148,6 +156,7 @@
             height: 3px;
             background: #404040;
             position: relative;
+            flex-shrink: 0;
         }
 
         .progress-fill {
@@ -158,25 +167,13 @@
         }
 
         .navigation {
-            padding: 10px 20px;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: #2a2a2a;
             border-top: 1px solid #404040;
-        }
-
-        .wikipedia-attribution {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            font-size: 0.7em;
-            color: #666666;
-            opacity: 0.7;
-            z-index: 1000;
-            pointer-events: none;
-            font-weight: 400;
-            letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
 
         .nav-button {
@@ -184,9 +181,9 @@
             border: none;
             color: #e0e0e0;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.85em;
+            font-size: 13px;
             transition: background 0.2s ease;
         }
 
@@ -201,7 +198,7 @@
         }
 
         .counter {
-            font-size: 0.85em;
+            font-size: 13px;
             color: #b0b0b0;
         }
 
@@ -214,31 +211,6 @@
             color: #ff6b6b;
             padding: 20px;
             text-align: center;
-        }
-
-        @media (max-width: 600px) {
-            .event-display {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px 20px;
-            }
-            
-            .event-year {
-                font-size: 1.4em;
-                min-width: auto;
-            }
-            
-            .event-text {
-                font-size: 0.9em;
-                text-align: center;
-                -webkit-line-clamp: 3;
-            }
-            
-            .wikipedia-attribution {
-                font-size: 0.55em;
-                top: 4px;
-                right: 12px;
-            }
         }
     </style>
 </head>
@@ -377,7 +349,7 @@
                 startAutoPlay();
                 
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('contentDisplay').style.display = 'block';
+                document.getElementById('contentDisplay').style.display = 'flex';
             } else {
                 showError();
             }
