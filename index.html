@@ -33,31 +33,36 @@
             overflow: hidden;
             box-shadow: none;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         .widget-header {
             background: #333333;
-            padding: 15px 20px;
+            padding: 8px 20px;
             text-align: center;
             border-bottom: 1px solid #404040;
+            flex-shrink: 0;
         }
 
         .widget-title {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: 600;
             color: #ffffff;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
 
         .widget-date {
-            font-size: 0.9em;
+            font-size: 0.8em;
             color: #b0b0b0;
         }
 
         .widget-content {
-            height: calc(100vh - 120px);
+            flex: 1;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .loading {
@@ -91,23 +96,26 @@
 
         .category-header {
             background: #353535;
-            padding: 10px 20px;
+            padding: 6px 20px;
             border-bottom: 1px solid #404040;
-            font-size: 0.9em;
+            font-size: 0.8em;
             font-weight: 600;
             color: #ffffff;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            flex-shrink: 0;
         }
 
         .event-display {
-            padding: 20px;
-            height: calc(100% - 41px);
+            flex: 1;
+            padding: 15px 25px;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            align-items: center;
             justify-content: center;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
+            gap: 20px;
         }
 
         .event-display.active {
@@ -115,21 +123,23 @@
         }
 
         .event-year {
-            font-size: 1.1em;
+            font-size: 1.8em;
             font-weight: 700;
             color: #888888;
-            margin-bottom: 12px;
             text-align: center;
+            min-width: 120px;
+            flex-shrink: 0;
         }
 
         .event-text {
             font-size: 1em;
-            line-height: 1.6;
+            line-height: 1.5;
             color: #e0e0e0;
-            text-align: center;
+            text-align: left;
+            flex: 1;
             overflow: hidden;
             display: -webkit-box;
-            -webkit-line-clamp: 6;
+            -webkit-line-clamp: 4;
             -webkit-box-orient: vertical;
         }
 
@@ -206,13 +216,26 @@
         }
 
         @media (max-width: 600px) {
+            .event-display {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 20px;
+            }
+            
+            .event-year {
+                font-size: 1.4em;
+                min-width: auto;
+            }
+            
             .event-text {
-                font-size: 0.95em;
+                font-size: 0.9em;
+                text-align: center;
+                -webkit-line-clamp: 3;
             }
             
             .wikipedia-attribution {
-                font-size: 0.65em;
-                top: 8px;
+                font-size: 0.55em;
+                top: 4px;
                 right: 12px;
             }
         }
