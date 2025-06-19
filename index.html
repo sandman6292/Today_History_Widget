@@ -385,9 +385,9 @@
                 document.getElementById('eventText').textContent = event.text;
                 document.getElementById('counter').textContent = `${currentEventIndex + 1} / ${allEvents.length}`;
                 
-                // Navigation butonları artık hiç disable olmasın (sürekli loop)
-                document.getElementById('prevBtn').disabled = false;
-                document.getElementById('nextBtn').disabled = false;
+                // Update navigation buttons
+                document.getElementById('prevBtn').disabled = currentEventIndex === 0;
+                document.getElementById('nextBtn').disabled = currentEventIndex === allEvents.length - 1;
                 
                 // Fade in
                 eventDisplay.classList.add('active');
@@ -438,29 +438,22 @@
         function nextEvent() {
             if (currentEventIndex < allEvents.length - 1) {
                 currentEventIndex++;
+                showCurrentEvent();
+                if (isAutoPlaying) {
+                    startAutoPlay();
+                }
             } else {
-                // Son olaya ulaştık, başa dön
-                currentEventIndex = 0;
-            }
-            
-            showCurrentEvent();
-            
-            if (isAutoPlaying) {
-                startAutoPlay();
+                stopAutoPlay();
             }
         }
         
         function previousEvent() {
             if (currentEventIndex > 0) {
                 currentEventIndex--;
-            } else {
-                // İlk olayda geri gidince son olaya git
-                currentEventIndex = allEvents.length - 1;
+                showCurrentEvent();
+                stopAutoPlay();
+                isAutoPlaying = false;
             }
-            
-            showCurrentEvent();
-            stopAutoPlay();
-            isAutoPlaying = false;
         }
         
         function showError() {
