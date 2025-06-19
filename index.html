@@ -400,7 +400,7 @@
             
             autoPlayInterval = setInterval(() => {
                 nextEvent();
-            }, 5000);
+            }, 7000);
         }
         
         function stopAutoPlay() {
@@ -417,7 +417,7 @@
             let progress = 0;
             
             progressInterval = setInterval(() => {
-                progress += 2; // %2 her 100ms'de
+                progress += 1.43; // %1.43 her 100ms'de (7 saniye için)
                 progressFill.style.width = progress + '%';
                 
                 if (progress >= 100) {
